@@ -29,25 +29,62 @@ package com.sun.j2me.dialog;
 import com.sun.j2me.i18n.Resource;
 import com.sun.j2me.i18n.ResourceConstants;
 
-import java.io.IOException;
+/** MIDP dependencies - public API */
+import javax.microedition.lcdui.Command;
+import javax.microedition.lcdui.Form;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.CommandListener;
+
+/** MIDP dependencies - internal API */
+import com.sun.midp.security.SecurityToken;
+import com.sun.midp.lcdui.DisplayEventHandler;
+import com.sun.midp.lcdui.DisplayEventHandlerFactory;
+import com.sun.midp.security.SecurityInitializer;
+import com.sun.midp.security.ImplicitlyTrustedClass;
 
 /**
  * This class represents simple dialog form.
  */
-public class Dialog {
+public class Dialog implements CommandListener {
 
     /** Answer that indicates that the dialog was cancelled. */
     public static final int CANCELLED = -1;
     /** Answer that indicates successful completion. */
     public static final int CONFIRMED = 1;
 
-    /* Confirmation string. */
-    private String okCmd = ":o";//Resource.getString(ResourceConstants.OK);
-    
-    /* "Cancel" string. */
-    private String cancelCmd = ":q";//Resource.getString(ResourceConstants.CANCEL);
+    /**
+     * Inner class to request security token from SecurityInitializer.
+     * SecurityInitializer should be able to check this inner class name.
+    */
+    static private class SecurityTrusted
+        implements ImplicitlyTrustedClass { };
 
-    private boolean withCancel;
+    /** This class has a different security domain than the Application */
+    static private SecurityToken token = SecurityInitializer
+        .requestToken(new SecurityTrusted());
+
+    /** Caches the display manager reference. */
+    private DisplayEventHandler displayEventHandler;
+
+    /* Command object for "OK" command. */
+    private Command okCmd = new Command(Resource
+                .getString(ResourceConstants.OK),
+                Command.OK, 1);
+    
+    /* Command object for "Cancel" command. */
+    private Command cancelCmd = new Command(Resource
+    		    .getString(ResourceConstants.CANCEL),
+                Command.CANCEL, 1);
+
+    /** Holds the preempt token so the form can end. */
+    private Object preemptToken;
+
+    /** Holds the answer to the security question. */
+    private int answer = CANCELLED;
+
+    /** Form object for this dialog. */
+    private Form form;
 
     /**
      * Construct message dialog for informational message or
@@ -56,58 +93,61 @@ public class Dialog {
      * @param withCancel show Cancel button
      */
     public Dialog(String title, boolean withCancel) {
-        System.out.println();
-        System.out.println(title);
-        System.out.println("Print '" + okCmd + "' for operation confirmation");
+        form = new Form(title);
+        form.addCommand(okCmd);
         if (withCancel) {
-            System.out.println("Print '" + cancelCmd + "' for operation cancellation");
-            this.withCancel = withCancel;
+            form.addCommand(cancelCmd);
         }
-        System.out.println();
+        form.setCommandListener(this);
     }
 
     /**
      * Adds an Item into the Form.
-     * @return input string
+     * @param item the Item to be added
      */
-    String append() {
-        String strInput = "";
-        
-        while (true) {
-            try {
-                int tmp = System.in.read();
-                if (tmp == -1) break;
-                strInput = strInput + (char)tmp;
-            }
-            catch (IOException e) {
-            }
-        }
-
-        System.out.println();
-        return strInput;
+    void append(Item item) {
+        form.append(item);
     }
 
     /**
      * Waits for the user's answer.
+     * @param token security token.
      * @return user's answer
+     * @throws InterruptedException if interrupted
      */
-    public int waitForAnswer() {
-        if (withCancel) {
-            while (true) {
-                String strInput = "";
-                System.out.println("Please enter result of operation: " + okCmd + "/" + cancelCmd);
-                strInput = append();
-                if (strInput.equals(okCmd)) {
-                    return CONFIRMED;
-                }
-                if (strInput.equals(cancelCmd)) {
-                    return CANCELLED;
-                }
-                System.out.println("Result is invalid");
-            }
+    public int waitForAnswer() throws InterruptedException {
+        if (displayEventHandler == null) {
+            displayEventHandler = DisplayEventHandlerFactory.getDisplayEventHandler(token);
         }
-        else {
-            return CONFIRMED;
+        preemptToken = displayEventHandler.preemptDisplay(form, true);
+
+        synchronized (this) {
+            if (preemptToken == null) {
+                return CANCELLED;
+            }
+
+            try {
+                wait();
+            } catch (Throwable t) {
+                return CANCELLED;
+            }
+
+            return answer;
+        }
+    }
+
+    /**
+     * Respond to a command issued on form.
+     * Sets the user's answer and notifies waitForAnswer and
+     * ends the form.
+     * @param c command activiated by the user
+     * @param s the Displayable the command was on.
+     */
+    public void commandAction(Command c, Displayable s) {
+        synchronized (this) {
+            answer = c == okCmd ? CONFIRMED : CANCELLED;
+            displayEventHandler.donePreempting(preemptToken);
+            notify();
         }
     }
 }
