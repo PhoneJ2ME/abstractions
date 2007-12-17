@@ -30,6 +30,7 @@ ABSTRACTIONS_CDC_JAVASRCDIRS = \
 
 # dirs containing native header files (.h)
 ABSTRACTIONS_INCLUDE_DIRS += \
+    $(ABSTRACTIONS_DIR)/src/share/include \
     $(ABSTRACTIONS_DIR)/src/cdc_share/native/include
 
 # dirs containing native source files
@@ -48,6 +49,7 @@ ABSTRACTIONS_CLASSES += \
     $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/security/TrustedClass.java \
     $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/security/Token.java \
     $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/security/SecurityTokenInitializer.java \
+    $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/security/PermissionChecker.java \
     $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/crypto/MessageDigest.java \
     $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/crypto/NoSuchAlgorithmException.java \
     $(ABSTRACTIONS_CDC_JAVASRCDIRS)/com/sun/j2me/crypto/DigestException.java \
@@ -140,11 +142,11 @@ ABSTRACTIONS_NATIVE_OBJS     = $(patsubst %.c,$(CVM_OBJDIR)/%.o,$(ABSTRACTIONS_N
 ABSTRACTIONS_LIB_NAME        = abstractions
 ABSTRACTIONS_BUILD_DIR       = $(CVM_BUILD_TOP)/$(ABSTRACTIONS_LIB_NAME)
 ABSTRACTIONS_CLASSDIR        = $(ABSTRACTIONS_BUILD_DIR)/classes
-ABSTRACTIONS_JAR             = $(JSROP_JAR_DIR)/$(ABSTRACTIONS_LIB_NAME).jar
+ABSTRACTIONS_JAR             = $(CVM_LIBDIR)/$(ABSTRACTIONS_LIB_NAME).jar
 ABSTRACTIONS_NATIVE_LIBRARY  = $(CVM_LIBDIR)/$(LIB_PREFIX)$(ABSTRACTIONS_LIB_NAME)$(LIB_POSTFIX)
 
 ifneq ($(CVM_STATICLINK_LIBS), true)
-JSROP_LINKLIBS += -l$(ABSTRACTIONS_LIB_NAME)$(DEBUG_POSTFIX)
+JSROP_LINKLIBS += $(ABSTRACTIONS_NATIVE_LIBRARY)
 endif
 
 CVM_SRCDIRS  += $(ABSTRACTIONS_SRCDIRS)

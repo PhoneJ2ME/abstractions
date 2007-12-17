@@ -1,21 +1,21 @@
 /*
- * Copyright  1990-2006 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright  1990-2007 Sun Microsystems, Inc. All Rights Reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License version
- * 2 only, as published by the Free Software Foundation. 
+ * 2 only, as published by the Free Software Foundation.
  * 
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License version 2 for more details (a copy is
- * included at /legal/license.txt). 
+ * included at /legal/license.txt).
  * 
  * You should have received a copy of the GNU General Public License
  * version 2 along with this work; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
- * 02110-1301 USA 
+ * 02110-1301 USA
  * 
  * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa
  * Clara, CA 95054 or visit www.sun.com if you need additional
@@ -25,17 +25,23 @@
 package com.sun.j2me.security;
 
 /**
- * FileConnection access permissions.
+ * This class provides CDC implementation of permission checking.
  */
-public class FileConnectionPermission extends Permission {
+public final class PermissionChecker {
 
-    static public FileConnectionPermission READ = new FileConnectionPermission(
-        "javax.microedition.io.Connector.file.read", null);
+    /**
+     * If called from MIDlet context, checks for the specified permission.
+     *
+     * @param name permission name.
+     * @param resource permission resource.
+     *
+     * @throws SecurityException if the requested permission is not granted.
+     */
+    public static void checkForPermission(String name, String resource)
+        throws SecurityException {
 
-    static public FileConnectionPermission WRITE = new FileConnectionPermission(
-        "javax.microedition.io.Connector.file.write", null);
-
-    public FileConnectionPermission(String name, String resource) {
-        super(name, resource);
+        // IMPL_NOTE: assuming MIDP context and querying MIDP AccessController
+        com.sun.j2me.proxy.security.AccessController.
+                checkPermission(name, resource);
     }
 }

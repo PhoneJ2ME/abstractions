@@ -29,27 +29,24 @@ package com.sun.j2me.security;
  */
 public class Permission {
     
-    protected String name;
+    private String name;
     
-    protected String resource;
+    private String resource;
     
-    /** Creates a new instance of Permission. */
+    /** Creates a new instance of Permission */
     public Permission(String name, String resource) {
         this.name = name;
         this.resource = resource;
     }
     
-    /** Returns name of the permission. */
+    /** Returns name of permission */
     public String getName() {
         return name;
     }
     
-    /** Returns resource of the permission. */
+    /** Returns resource of permission */
     public String getResource() {
         return resource;
     }
-
-    /** Checks if the corresponding CDC permission is granted. */
-    public void checkCDCPermission() {
-    }
+    
 }

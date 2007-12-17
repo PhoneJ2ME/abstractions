@@ -25,7 +25,7 @@
 package com.sun.j2me.app;
 
 import com.sun.j2me.security.Permission;
-import sun.misc.CVM;
+import com.sun.j2me.security.PermissionChecker;
 
 /**
  * Abstraction for application package
@@ -78,13 +78,8 @@ public class AppPackage {
      *  thread while asking user
      */
     public void checkForPermission(Permission p) throws InterruptedException {
-        if (CVM.isMIDPContext()) {
-            com.sun.j2me.proxy.security.AccessController.
-                checkPermission(p.getName(), p.getResource());
-        } else {
-            p.checkCDCPermission();
-        }
-    }
+        PermissionChecker.checkForPermission(p.getName(), p.getResource());
+    }    
     
     /**
      * Throws an exception if a status for the permission is not allowed

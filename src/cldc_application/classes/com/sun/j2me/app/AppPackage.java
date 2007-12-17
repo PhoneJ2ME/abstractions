@@ -27,8 +27,6 @@ package com.sun.j2me.app;
 import com.sun.j2me.security.Permission;
 import com.sun.j2me.security.AccessController;
 import com.sun.midp.midlet.MIDletStateHandler;
-import com.sun.midp.midletsuite.MIDletSuiteImpl;
-import com.sun.midp.midlet.MIDletSuite;
 
 /**
  * Abstraction for application package
@@ -50,11 +48,7 @@ public class AppPackage {
         return MIDletStateHandler.getMidletStateHandler().
             getMIDletSuite().getID();
     }
-
-
-    /** Unused ID */
-    public static final int UNUSED_APP_ID = -1;
-   
+    
     /**
      * Returns permission status for the specified permission
      *
@@ -104,14 +98,6 @@ public class AppPackage {
      * @return name of a CA or null if the suite was not signed
      */
     public String getCA() {
-        MIDletSuite ms =
-            MIDletStateHandler.getMidletStateHandler().getMIDletSuite();
-
-        if (ms instanceof com.sun.midp.midletsuite.MIDletSuiteImpl) {
-            return ((MIDletSuiteImpl)ms).getInstallInfo().getCA();
-        } 
-        else {
-            return null;
-        }
+        return null;
     }
 }
