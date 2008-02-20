@@ -36,7 +36,7 @@ public class WMAPermission extends Permission {
 
     static public WMAPermission getSmsSendPermission(String host, int numSeg) {
         return new WMAPermission(
-            Permissions.getName(Permissions.SMS_SEND), host, Integer.toString(numSeg));
+            Permissions.getName(Permissions.SMS_SEND), host);
     }
 
     static public WMAPermission SMS_RECEIVE = new WMAPermission(
@@ -56,7 +56,7 @@ public class WMAPermission extends Permission {
 
     static public WMAPermission getMmsSendPermission(String addresses, String numSeg) {
         return new WMAPermission(
-            Permissions.getName(Permissions.MMS_SEND), addresses, numSeg);
+            Permissions.getName(Permissions.MMS_SEND), addresses);
     }
 
     static public WMAPermission MMS_RECEIVE = new WMAPermission(
@@ -65,9 +65,5 @@ public class WMAPermission extends Permission {
 
     public WMAPermission(String name, String resource) {
         super(name, resource);
-    }
-
-    public WMAPermission(String name, String resource, String extraValue) {
-        super(name, resource, extraValue);
     }
 }
